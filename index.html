@@ -10,7 +10,7 @@
     <style>
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #10b981; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        body { user-select: none; }
+        body { user-select: none; -webkit-user-select: none; }
         .sticky-header { backdrop-filter: blur(10px); background: rgba(255,255,255,0.95); }
     </style>
 </head>
@@ -27,17 +27,30 @@
 
     <div id="page-login" class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-green-400 to-blue-500">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
-            <h1 class="text-3xl font-black text-center text-gray-800 mb-2">KUIZ BIG 2 (5%)</h1>
-            <p class="text-center text-gray-500 text-sm mb-8 font-semibold">Sila log masuk untuk menjawab</p>
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-4 shadow-sm">
+                    <i class="fas fa-book-reader text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-black text-gray-800">KUIZ BIG (5%)</h1>
+                <p class="text-gray-500 font-medium text-sm">Sila log masuk untuk menjawab</p>
+            </div>
             
             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-xs text-yellow-800 rounded">
-                <strong>PENTING:</strong> Masa menjawab 20 minit. Jangan tutup atau tukar tab browser.
+                <strong>PERINGATAN:</strong>
+                <ul class="list-disc pl-4 mt-1 space-y-1">
+                    <li>Masa menjawab: <strong>20 Minit</strong>.</li>
+                    <li>Jawab <strong>30 Soalan</strong> yang diberikan.</li>
+                    <li>Jangan tutup atau tukar tab browser.</li>
+                    <li>Soalan adalah SULIT.</li>
+                </ul>
             </div>
 
             <form onsubmit="doLogin(event)">
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">No. Kad Pengenalan</label>
-                <input type="text" id="ic_input" class="w-full p-4 border-2 border-gray-200 rounded-xl text-center text-lg font-bold tracking-widest focus:border-green-500 focus:ring-0 outline-none transition" placeholder="Contoh: 010101010101" required>
-                <button class="w-full mt-6 bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-xl shadow-lg transition-transform transform active:scale-95">MULA SEKARANG</button>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">No. Kad Pengenalan</label>
+                <input type="text" id="ic_input" class="w-full p-4 border-2 border-gray-200 rounded-xl text-center text-lg font-bold tracking-widest focus:border-green-500 focus:ring-0 outline-none transition" placeholder="000000-00-0000" required>
+                <button class="w-full mt-6 bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-xl shadow-lg transition-transform transform active:scale-95 flex items-center justify-center gap-2">
+                    <span>MULA MENJAWAB</span> <i class="fas fa-arrow-right"></i>
+                </button>
             </form>
         </div>
     </div>
@@ -46,18 +59,24 @@
         <div class="sticky-header shadow-sm border-b border-gray-200 sticky top-0 z-20 px-4 py-3 flex justify-between items-center">
             <div>
                 <p class="text-[10px] font-bold text-gray-400 uppercase">PELAJAR</p>
-                <p class="font-bold text-gray-800 text-sm leading-tight" id="nama_pelajar">...</p>
+                <p class="font-bold text-gray-800 text-sm leading-tight truncate w-40" id="nama_pelajar">...</p>
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-bold text-gray-400 uppercase">BAKI MASA</p>
-                <p class="font-mono font-black text-red-600 text-xl" id="timer">20:00</p>
+                <div class="flex items-center gap-2 justify-end text-red-600">
+                    <i class="fas fa-clock text-sm animate-pulse"></i>
+                    <p class="font-mono font-black text-xl" id="timer">20:00</p>
+                </div>
             </div>
         </div>
 
         <div id="soalan-container" class="max-w-3xl mx-auto p-4 space-y-6 mt-4"></div>
 
-        <div class="max-w-3xl mx-auto px-4 mt-8 mb-10">
-            <button onclick="confirmSubmit()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition">HANTAR JAWAPAN</button>
+        <div class="max-w-3xl mx-auto px-4 mt-10 mb-10">
+            <button onclick="confirmSubmit()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition text-lg">
+                HANTAR JAWAPAN
+            </button>
+            <p class="text-center text-xs text-gray-400 mt-4 italic">Sila semak jawapan sebelum menghantar.</p>
         </div>
     </div>
 
@@ -106,7 +125,7 @@
                     document.getElementById('page-quiz').classList.remove('hidden');
                     document.getElementById('nama_pelajar').innerText = userData.nama;
                     
-                    // Anti Cheat & Timer
+                    // Anti Cheat & Timer (20 minit)
                     startTimer(userData.durasi || 20);
                     setupAntiCheat();
                     openFullscreen();
@@ -119,16 +138,16 @@
         function renderQuiz(soalanList) {
             const container = document.getElementById('soalan-container');
             container.innerHTML = soalanList.map((q, idx) => `
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition group">
                     <div class="flex gap-3 mb-4">
-                        <span class="bg-blue-100 text-blue-700 font-bold w-8 h-8 flex items-center justify-center rounded-lg text-sm flex-none">${idx+1}</span>
+                        <span class="bg-blue-50 text-blue-600 font-bold w-8 h-8 flex items-center justify-center rounded-lg text-sm flex-none">${idx+1}</span>
                         <p class="font-bold text-gray-800 text-lg leading-relaxed">${q.soalan}</p>
                     </div>
                     <div class="space-y-3 pl-11">
                         ${Object.entries(q.options).map(([k, v]) => v ? `
-                            <label class="flex items-center p-3 border-2 border-transparent bg-gray-50 rounded-xl hover:bg-blue-50 hover:border-blue-200 cursor-pointer transition group">
+                            <label class="flex items-center p-4 border-2 border-transparent bg-gray-50 rounded-xl hover:bg-blue-50 hover:border-blue-200 cursor-pointer transition">
                                 <input type="radio" name="q-${q.id}" value="${k}" class="w-5 h-5 text-green-600 focus:ring-green-500" onchange="jawapan['${q.id}']='${k}'; highlight(this)">
-                                <span class="ml-3 font-medium text-gray-600 group-hover:text-gray-900"><span class="font-bold text-gray-800 mr-1">${k}.</span> ${v}</span>
+                                <span class="ml-3 font-medium text-gray-700 text-sm md:text-base"><span class="font-bold text-gray-900 mr-2">${k}.</span> ${v}</span>
                             </label>
                         ` : '').join('')}
                     </div>
@@ -137,9 +156,7 @@
         }
 
         function highlight(el) {
-            // Remove active style from siblings
             el.closest('.space-y-3').querySelectorAll('label').forEach(l => l.classList.remove('border-green-500', 'bg-green-50'));
-            // Add active style
             el.closest('label').classList.add('border-green-500', 'bg-green-50');
         }
 
@@ -150,7 +167,7 @@
                 const m = Math.floor(time / 60);
                 const s = time % 60;
                 el.innerText = `${m}:${s<10?'0':''}${s}`;
-                if (time < 60) el.classList.add('text-red-600', 'animate-pulse');
+                if (time < 60) el.classList.add('text-red-600', 'animate-ping');
                 if (time <= 0) {
                     clearInterval(timerInterval);
                     Swal.fire({ title: 'Masa Tamat', text: 'Jawapan dihantar automatik', icon: 'info', timer: 2000, showConfirmButton: false }).then(() => submitData());
@@ -159,12 +176,16 @@
             }, 1000);
         }
 
-        // --- ANTI CHEAT ---
         function setupAntiCheat() {
             document.addEventListener("visibilitychange", () => {
                 if (document.hidden) {
                     logViolation("Tukar Tab / Minimize");
-                    Swal.fire('AMARAN!', 'Sila kekal di halaman ujian!', 'warning');
+                    Swal.fire({
+                        title: 'AMARAN!',
+                        text: 'Sila kekal di halaman ujian! Percubaan keluar direkodkan.',
+                        icon: 'warning',
+                        confirmButtonColor: '#d33'
+                    });
                 }
             });
             window.addEventListener("blur", () => logViolation("Window Blur"));
@@ -188,11 +209,10 @@
             if (elem.requestFullscreen) elem.requestFullscreen().catch(err => {});
         }
 
-        // --- SUBMIT ---
         function confirmSubmit() {
             Swal.fire({
                 title: 'Hantar Jawapan?',
-                text: "Semakan terakhir sebelum hantar.",
+                text: "Semakan terakhir sebelum hantar. Anda pasti?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#10b981',
@@ -219,11 +239,13 @@
             .then(res => {
                 loader(false);
                 if(res.status === 'success') {
+                    // MESEJ BERJAYA TANPA MARKAH
                     Swal.fire({
                         title: 'Tahniah!',
-                        html: `Markah: <b>${res.score}/${res.total}</b><br>Peratus: ${res.percent}%`,
+                        text: 'Jawapan anda telah selamat diterima dan direkodkan.',
                         icon: 'success',
-                        allowOutsideClick: false
+                        allowOutsideClick: false,
+                        confirmButtonText: 'Tutup'
                     }).then(() => location.reload());
                 } else {
                     Swal.fire('Ralat', res.message || 'Gagal menyimpan rekod.', 'error');
