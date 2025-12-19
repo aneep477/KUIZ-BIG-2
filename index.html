@@ -95,7 +95,7 @@
             .catch(err => {
                 showLoader(false);
                 console.error(err);
-                Swal.fire('Ralat Sambungan', 'Gagal menyambung ke server. Pastikan URL Script betul dan akses ditetapkan kepada "Anyone".', 'error');
+                Swal.fire('Ralat Sambungan', 'Gagal menyambung ke server. Pastikan deployment script ditetapkan kepada "Anyone".', 'error');
             });
         }
 
@@ -109,7 +109,8 @@
                 showLoader(false);
                 if (data.status === 'success') {
                     renderQuiz(data.data);
-                    startTimer(currentUser.durasi || 30); // Default 30 minit
+                    // Default masa 30 minit jika tiada dalam sheet
+                    startTimer(currentUser.durasi || 30); 
                     document.getElementById('view-login').classList.add('hidden');
                     document.getElementById('view-quiz').classList.remove('hidden');
                     document.getElementById('display-name').innerText = currentUser.nama;
@@ -183,8 +184,7 @@
 
         function submitQuiz(force = false) {
             if (!force) {
-                // Kira soalan yang belum dijawab (Optional logic)
-                // Terus tanya confirm
+                // Pengesahan sebelum hantar
                 Swal.fire({
                     title: 'Hantar Jawapan?',
                     text: "Pastikan anda telah menyemak semua jawapan.",
@@ -209,7 +209,7 @@
 
             const payload = {
                 action: 'submit',
-                no_kp: currentUser.no_kp || document.getElementById('no_kp').value, // Fallback
+                no_kp: currentUser.no_kp || document.getElementById('no_kp').value, // Fallback jika refresh
                 nama: currentUser.nama,
                 answers: answers
             };
