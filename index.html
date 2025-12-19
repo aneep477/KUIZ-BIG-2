@@ -3,15 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuiz Program BIG (KUIZ 2)</title>
+    <title>Kuiz Program BIG (Sesi 2)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #10b981; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Halang user select text (Copy Paste) */
         body { user-select: none; -webkit-user-select: none; }
+        
+        /* Sticky Header */
         .sticky-header { backdrop-filter: blur(10px); background: rgba(255,255,255,0.95); }
+        
+        /* Format Soalan */
+        .question-text { white-space: pre-wrap; line-height: 1.8; }
+
+        /* Fullscreen Warning Overlay */
+        #fullscreen-warning { display: none; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen text-gray-800 font-sans">
@@ -20,7 +30,7 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbxGfuchGJDOrbsmE8psOuswEL0NK0Y0WcxITrcO040fCEck41zUqf2Rs8rG0M9kk6MI/exec";
     </script>
 
-    <div id="loading" class="fixed inset-0 bg-black/70 z-[100] hidden flex flex-col items-center justify-center text-white">
+    <div id="loading" class="fixed inset-0 bg-black/80 z-[100] hidden flex flex-col items-center justify-center text-white">
         <div class="loader mb-4"></div>
         <p class="font-bold tracking-wider animate-pulse">MEMPROSES...</p>
     </div>
@@ -28,28 +38,29 @@
     <div id="page-login" class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-green-400 to-blue-500">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
             <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-4 shadow-sm">
-                    <i class="fas fa-book-reader text-3xl"></i>
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600 mb-4 shadow-sm animate-pulse">
+                    <i class="fas fa-shield-alt text-3xl"></i>
                 </div>
-                <h1 class="text-2xl font-black text-gray-800">KUIZ 2 BINA INSAN GURU</h1>
-                <p class="text-gray-500 font-medium text-sm">Sila log masuk untuk menjawab</p>
+                <h1 class="text-2xl font-black text-gray-800">KUIZ 2 BIG 2026</h1>
+                <p class="text-red-600 font-bold text-sm">UKO IPGKDA</p>
             </div>
             
-            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-xs text-yellow-800 rounded">
-                <strong>PERINGATAN:</strong>
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 text-xs text-red-800 rounded">
+                <strong>AMARAN KERAS:</strong>
                 <ul class="list-disc pl-4 mt-1 space-y-1">
-                    <li>Masa menjawab: <strong>20 Minit</strong>.</li>
-                    <li>Jawab <strong>30 Soalan</strong> yang diberikan.</li>
-                    <li>Jangan tutup atau tukar tab browser.</li>
+                    <li>Sistem akan menggunakan <strong>FULLSCREEN</strong>.</li>
+                    <li>Jika anda <strong>KELUAR/MINIMIZE/TUKAR TAB</strong>, sistem akan <strong>AUTO-SUBMIT</strong> dan anda akan <strong>LOGOUT</strong> serta merta.</li>
+                    <li>Tiada peluang kedua.</li>
                     <li>Soalan adalah SULIT.</li>
+                    <li>Meniru adalah satu Kesalahan.</li>
                 </ul>
             </div>
 
             <form onsubmit="doLogin(event)">
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">No. Kad Pengenalan</label>
-                <input type="text" id="ic_input" class="w-full p-4 border-2 border-gray-200 rounded-xl text-center text-lg font-bold tracking-widest focus:border-green-500 focus:ring-0 outline-none transition" placeholder="000000-00-0000" required>
+                <input type="text" id="ic_input" class="w-full p-4 border-2 border-gray-200 rounded-xl text-center text-lg font-bold tracking-widest focus:border-red-500 focus:ring-0 outline-none transition" placeholder="000000-00-0000" required>
                 <button class="w-full mt-6 bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-xl shadow-lg transition-transform transform active:scale-95 flex items-center justify-center gap-2">
-                    <span>MULA MENJAWAB</span> <i class="fas fa-arrow-right"></i>
+                    <span>MULA MENJAWAB</span> <i class="fas fa-lock"></i>
                 </button>
             </form>
         </div>
@@ -59,7 +70,8 @@
         <div class="sticky-header shadow-sm border-b border-gray-200 sticky top-0 z-20 px-4 py-3 flex justify-between items-center">
             <div>
                 <p class="text-[10px] font-bold text-gray-400 uppercase">PELAJAR</p>
-                <p class="font-bold text-gray-800 text-sm leading-tight truncate w-40" id="nama_pelajar">...</p>
+                <p class="font-bold text-gray-800 text-sm leading-tight truncate w-32 md:w-auto" id="nama_pelajar">...</p>
+                <p class="text-[10px] text-green-600 font-bold" id="kelas_pelajar">...</p>
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-bold text-gray-400 uppercase">BAKI MASA</p>
@@ -76,7 +88,6 @@
             <button onclick="confirmSubmit()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition text-lg">
                 HANTAR JAWAPAN
             </button>
-            <p class="text-center text-xs text-gray-400 mt-4 italic">Sila semak jawapan sebelum menghantar.</p>
         </div>
     </div>
 
@@ -84,9 +95,11 @@
         let userData = null;
         let jawapan = {};
         let timerInterval;
+        let isQuizActive = false; // Flag penting untuk anti-cheat
 
         const loader = (s) => document.getElementById('loading').classList.toggle('hidden', !s);
 
+        // --- 1. LOGIN ---
         function doLogin(e) {
             e.preventDefault();
             const ic = document.getElementById('ic_input').value.trim();
@@ -102,7 +115,22 @@
                 loader(false);
                 if(res.status === 'success') {
                     userData = res;
-                    loadSoalan();
+                    // Minta confirmation sebelum masuk Fullscreen
+                    Swal.fire({
+                        title: 'Sedia?',
+                        text: "Apabila anda tekan 'Mula', skrin akan menjadi penuh. Jangan keluar atau ujian tamat.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Mula!',
+                        confirmButtonColor: '#d33',
+                        allowOutsideClick: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            loadSoalan();
+                        }
+                    });
+                } else if (res.status === 'done') {
+                    Swal.fire('Maaf', `Anda (${res.nama}) telah menjawab kuiz ini.`, 'warning');
                 } else {
                     Swal.fire('Gagal', res.message || 'Nombor KP tiada.', 'error');
                 }
@@ -110,6 +138,7 @@
             .catch((e) => { loader(false); Swal.fire('Ralat', e.toString(), 'error'); });
         }
 
+        // --- 2. LOAD SOALAN & START ---
         function loadSoalan() {
             loader(true);
             fetch(API_URL, {
@@ -121,33 +150,43 @@
                 loader(false);
                 if(res.status === 'success') {
                     renderQuiz(res.data);
+                    
+                    // Setup UI
                     document.getElementById('page-login').classList.add('hidden');
                     document.getElementById('page-quiz').classList.remove('hidden');
                     document.getElementById('nama_pelajar').innerText = userData.nama;
-                    
-                    // Anti Cheat & Timer (20 minit)
+                    document.getElementById('kelas_pelajar').innerText = userData.kelas || "";
+
+                    // START EVERYTHING
+                    enterFullscreen();
                     startTimer(userData.durasi || 20);
-                    setupAntiCheat();
-                    openFullscreen();
+                    
+                    // Aktifkan Anti-Cheat selepas sedikit delay (elak trigger masa transition)
+                    setTimeout(() => {
+                        isQuizActive = true; 
+                        activateKillSwitch();
+                    }, 2000);
+
                 } else {
                     Swal.fire('Ralat', res.message, 'error');
                 }
             });
         }
 
+        // --- 3. RENDER KUIZ ---
         function renderQuiz(soalanList) {
             const container = document.getElementById('soalan-container');
             container.innerHTML = soalanList.map((q, idx) => `
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition group">
-                    <div class="flex gap-3 mb-4">
-                        <span class="bg-blue-50 text-blue-600 font-bold w-8 h-8 flex items-center justify-center rounded-lg text-sm flex-none">${idx+1}</span>
-                        <p class="font-bold text-gray-800 text-lg leading-relaxed">${q.soalan}</p>
+                    <div class="flex gap-3 mb-4 items-start">
+                        <span class="bg-blue-100 text-blue-700 font-bold w-8 h-8 flex items-center justify-center rounded-lg text-sm flex-none mt-1">${idx+1}</span>
+                        <p class="question-text font-bold text-gray-800 text-lg leading-relaxed">${q.soalan}</p>
                     </div>
-                    <div class="space-y-3 pl-11">
+                    <div class="space-y-3 pl-0 md:pl-11">
                         ${Object.entries(q.options).map(([k, v]) => v ? `
-                            <label class="flex items-center p-4 border-2 border-transparent bg-gray-50 rounded-xl hover:bg-blue-50 hover:border-blue-200 cursor-pointer transition">
-                                <input type="radio" name="q-${q.id}" value="${k}" class="w-5 h-5 text-green-600 focus:ring-green-500" onchange="jawapan['${q.id}']='${k}'; highlight(this)">
-                                <span class="ml-3 font-medium text-gray-700 text-sm md:text-base"><span class="font-bold text-gray-900 mr-2">${k}.</span> ${v}</span>
+                            <label class="flex items-start p-4 border-2 border-transparent bg-gray-50 rounded-xl hover:bg-blue-50 hover:border-blue-200 cursor-pointer transition">
+                                <input type="radio" name="q-${q.id}" value="${k}" class="w-5 h-5 text-green-600 focus:ring-green-500 mt-0.5 flex-none" onchange="jawapan['${q.id}']='${k}'; highlight(this)">
+                                <span class="ml-3 font-medium text-gray-700 text-sm md:text-base leading-relaxed"><span class="font-bold text-gray-900 mr-2">${k}.</span> ${v}</span>
                             </label>
                         ` : '').join('')}
                     </div>
@@ -160,6 +199,7 @@
             el.closest('label').classList.add('border-green-500', 'bg-green-50');
         }
 
+        // --- 4. TIMER ---
         function startTimer(min) {
             let time = min * 60;
             const el = document.getElementById('timer');
@@ -167,71 +207,91 @@
                 const m = Math.floor(time / 60);
                 const s = time % 60;
                 el.innerText = `${m}:${s<10?'0':''}${s}`;
-                if (time < 60) el.classList.add('text-red-600', 'animate-ping');
+                if (time < 60) el.classList.add('text-red-600', 'animate-pulse');
                 if (time <= 0) {
                     clearInterval(timerInterval);
-                    Swal.fire({ title: 'Masa Tamat', text: 'Jawapan dihantar automatik', icon: 'info', timer: 2000, showConfirmButton: false }).then(() => submitData());
+                    isQuizActive = false; // Stop anti-cheat check
+                    forceSubmit("Masa Tamat");
                 }
                 time--;
             }, 1000);
         }
 
-        function setupAntiCheat() {
-            document.addEventListener("visibilitychange", () => {
-                if (document.hidden) {
-                    logViolation("Tukar Tab / Minimize");
-                    Swal.fire({
-                        title: 'AMARAN!',
-                        text: 'Sila kekal di halaman ujian! Percubaan keluar direkodkan.',
-                        icon: 'warning',
-                        confirmButtonColor: '#d33'
-                    });
-                }
-            });
-            window.addEventListener("blur", () => logViolation("Window Blur"));
+        // --- 5. ANTI-CHEAT (KILL SWITCH) ---
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(() => {});
+            }
         }
 
-        function logViolation(type) {
+        function activateKillSwitch() {
+            // Detect Tab Visibility (Minimize / New Tab)
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden && isQuizActive) {
+                    isQuizActive = false;
+                    forceSubmit("Pelanggaran: Menukar Tab / Minimize");
+                }
+            });
+
+            // Detect Window Blur (Klik luar browser / Buka app lain)
+            window.addEventListener("blur", () => {
+                if (isQuizActive) {
+                    isQuizActive = false;
+                    forceSubmit("Pelanggaran: Fokus Hilang (Blur)");
+                }
+            });
+        }
+
+        // --- 6. SUBMIT LOGIC ---
+        function forceSubmit(reason) {
+            clearInterval(timerInterval);
+            loader(true);
+            
+            // Log Pelanggaran dulu
             fetch(API_URL, {
                 method: 'POST',
                 body: JSON.stringify({
                     action: 'log_violation',
                     no_kp: userData.no_kp,
                     nama: userData.nama,
-                    jenis: type,
+                    jenis: reason,
                     time_left: document.getElementById('timer').innerText
                 })
             });
-        }
 
-        function openFullscreen() {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) elem.requestFullscreen().catch(err => {});
+            // Auto Submit Jawapan sedia ada
+            submitToBackend(true, reason);
         }
 
         function confirmSubmit() {
             Swal.fire({
                 title: 'Hantar Jawapan?',
-                text: "Semakan terakhir sebelum hantar. Anda pasti?",
+                text: "Anda pasti? Jawapan tidak boleh diubah.",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#10b981',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Ya, Hantar!'
             }).then((result) => {
-                if (result.isConfirmed) submitData();
+                if (result.isConfirmed) {
+                    isQuizActive = false; // Matikan anti-cheat supaya tak trigger bila loading
+                    submitToBackend(false, "Manual Submit");
+                }
             });
         }
 
-        function submitData() {
+        function submitToBackend(isForced, reason) {
             clearInterval(timerInterval);
             loader(true);
+            
             fetch(API_URL, {
                 method: 'POST',
                 body: JSON.stringify({
                     action: 'submit',
-                    no_kp: userData.no_kp || document.getElementById('ic_input').value,
+                    no_kp: userData.no_kp,
                     nama: userData.nama,
+                    kelas: userData.kelas,
                     answers: jawapan
                 })
             })
@@ -239,22 +299,31 @@
             .then(res => {
                 loader(false);
                 if(res.status === 'success') {
-                    // MESEJ BERJAYA TANPA MARKAH
-                    Swal.fire({
-                        title: 'Tahniah!',
-                        text: 'Jawapan anda telah selamat diterima dan direkodkan.',
-                        icon: 'success',
-                        allowOutsideClick: false,
-                        confirmButtonText: 'Tutup'
-                    }).then(() => location.reload());
+                    if(isForced) {
+                        // Mesej Jika Kena Kick
+                        Swal.fire({
+                            title: 'UJIAN DITAMATKAN!',
+                            text: `Sistem mengesan pelanggaran peraturan (${reason}). Jawapan anda telah dihantar secara automatik. Sila hubungi pengawas jika ini kesilapan.`,
+                            icon: 'error',
+                            allowOutsideClick: false,
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'Keluar'
+                        }).then(() => location.reload());
+                    } else {
+                        // Mesej Normal
+                        Swal.fire({
+                            title: 'Berjaya!',
+                            text: 'Jawapan anda telah direkodkan. Terima kasih.',
+                            icon: 'success',
+                            allowOutsideClick: false,
+                            confirmButtonText: 'Tutup'
+                        }).then(() => location.reload());
+                    }
                 } else {
-                    Swal.fire('Ralat', res.message || 'Gagal menyimpan rekod.', 'error');
+                    Swal.fire('Ralat', 'Gagal menyimpan rekod.', 'error');
                 }
             })
-            .catch((e) => { 
-                loader(false); 
-                Swal.fire('Ralat Sambungan', 'Sila semak internet anda. ' + e, 'error'); 
-            });
+            .catch(() => { loader(false); Swal.fire('Ralat', 'Ralat sambungan.', 'error'); });
         }
     </script>
 </body>
