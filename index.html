@@ -3,237 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuiz Program BIG</title>
-    
+    <title>Kuiz Program BIG (Sesi 2)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
     <style>
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #10b981; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        body { user-select: none; -webkit-user-select: none; }
+        body { user-select: none; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans text-gray-800">
+<body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxGfuchGJDOrbsmE8psOuswEL0NK0Y0WcxITrcO040fCEck41zUqf2Rs8rG0M9kk6MI/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyR4tyQrBTqaF5c-wMA3hZn1gXC0gHAtXHTTFMyOxLqDqQA40L0W_uml22P0gzxgPSK/exec";
     </script>
 
-    <div id="loading" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
-        <div class="bg-white p-5 rounded-lg flex flex-col items-center">
-            <div class="loader mb-3"></div>
-            <p class="font-bold text-gray-700">Memproses...</p>
-        </div>
+    <div id="loading" class="fixed inset-0 bg-black/60 z-50 hidden flex flex-col items-center justify-center text-white">
+        <div class="loader mb-4"></div>
+        <p class="font-bold tracking-wider">SEDANG MEMPROSES...</p>
     </div>
 
-    <div id="view-login" class="flex flex-col items-center justify-center min-h-screen p-4">
-        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-            <div class="text-center mb-6">
-                <h1 class="text-2xl font-bold text-blue-600">SISTEM KUIZ BIG</h1>
-                <p class="text-gray-500 text-sm">Sila masukkan No. Kad Pengenalan</p>
-            </div>
-            <form onsubmit="handleLogin(event)">
-                <input type="text" id="no_kp" class="w-full p-3 border rounded-lg mb-4 text-center tracking-widest text-lg font-bold" placeholder="Contoh: 010101010101" required>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">MULA KUIZ</button>
+    <div id="page-login" class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border-t-8 border-green-500">
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-2">KUIZ BIG (Sesi 2)</h1>
+            <p class="text-center text-gray-500 text-sm mb-8">Sila log masuk untuk menjawab</p>
+            
+            <form onsubmit="doLogin(event)">
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-2">No. Kad Pengenalan</label>
+                <input type="text" id="ic_input" class="w-full p-4 border rounded-xl bg-gray-50 text-center text-lg font-bold tracking-widest focus:ring-2 focus:ring-green-500 outline-none" placeholder="Contoh: 010101010101" required>
+                <button class="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all transform active:scale-95">MULA MENJAWAB</button>
             </form>
         </div>
     </div>
 
-    <div id="view-quiz" class="hidden min-h-screen p-4 pb-20 max-w-3xl mx-auto">
-        <div class="bg-white p-4 rounded-lg shadow mb-4 sticky top-0 z-10 flex justify-between items-center">
+    <div id="page-quiz" class="hidden min-h-screen pb-20">
+        <div class="bg-white shadow-md sticky top-0 z-20 px-4 py-3 flex justify-between items-center">
             <div>
-                <p class="text-xs text-gray-500">Nama Peserta</p>
-                <p class="font-bold text-blue-700" id="display-name">-</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase">PELAJAR</p>
+                <p class="font-bold text-green-700 text-sm leading-tight" id="nama_pelajar">...</p>
             </div>
             <div class="text-right">
-                <p class="text-xs text-gray-500">Masa Tinggal</p>
-                <p class="font-mono font-bold text-red-600 text-xl" id="timer">00:00</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase">MASA</p>
+                <p class="font-mono font-black text-red-600 text-xl" id="timer">00:00</p>
             </div>
         </div>
 
-        <div id="quiz-container" class="space-y-6"></div>
+        <div id="soalan-container" class="max-w-3xl mx-auto p-4 space-y-6 mt-4"></div>
 
-        <button onclick="submitQuiz()" class="w-full bg-green-600 text-white py-4 rounded-lg font-bold text-lg mt-8 shadow-lg hover:bg-green-700 transition">HANTAR JAWAPAN</button>
+        <div class="max-w-3xl mx-auto px-4 mt-8">
+            <button onclick="confirmSubmit()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold shadow-xl hover:bg-slate-900 transition">HANTAR JAWAPAN</button>
+        </div>
     </div>
 
     <script>
-        let currentUser = null;
+        let userData = null;
+        let jawapan = {};
         let timerInterval;
-        let answers = {};
 
-        function showLoader(show) {
-            document.getElementById('loading').classList.toggle('hidden', !show);
-        }
+        const loader = (s) => document.getElementById('loading').classList.toggle('hidden', !s);
 
-        function handleLogin(e) {
+        function doLogin(e) {
             e.preventDefault();
-            const kp = document.getElementById('no_kp').value.trim();
-            if (!kp) return Swal.fire('Ralat', 'Sila masukkan No. KP', 'warning');
+            const ic = document.getElementById('ic_input').value.trim();
+            if(!ic) return;
 
-            showLoader(true);
-
-            // Fetch Login
+            loader(true);
             fetch(API_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'login', no_kp: kp })
+                body: JSON.stringify({ action: 'login', no_kp: ic })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    currentUser = data;
-                    loadQuestions();
-                } else if (data.status === 'done') {
-                    showLoader(false);
-                    Swal.fire('Maaf', `Anda (${data.nama}) telah menjawab kuiz ini.`, 'info');
+            .then(r => r.json())
+            .then(res => {
+                loader(false);
+                if(res.status === 'success') {
+                    userData = res;
+                    loadSoalan();
                 } else {
-                    showLoader(false);
-                    Swal.fire('Gagal', 'No. KP tidak dijumpai dalam pangkalan data.', 'error');
+                    Swal.fire('Gagal', 'Nombor KP tiada dalam data.', 'error');
                 }
             })
-            .catch(err => {
-                showLoader(false);
-                console.error(err);
-                Swal.fire('Ralat Sambungan', 'Gagal menyambung ke server. Pastikan deployment script ditetapkan kepada "Anyone".', 'error');
-            });
+            .catch(() => { loader(false); Swal.fire('Ralat', 'Masalah sambungan server.', 'error'); });
         }
 
-        function loadQuestions() {
+        function loadSoalan() {
+            loader(true);
             fetch(API_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'getQuestions' })
             })
-            .then(res => res.json())
-            .then(data => {
-                showLoader(false);
-                if (data.status === 'success') {
-                    renderQuiz(data.data);
-                    // Default masa 30 minit jika tiada dalam sheet
-                    startTimer(currentUser.durasi || 30); 
-                    document.getElementById('view-login').classList.add('hidden');
-                    document.getElementById('view-quiz').classList.remove('hidden');
-                    document.getElementById('display-name').innerText = currentUser.nama;
-                } else {
-                    Swal.fire('Ralat', 'Tiada soalan ditemui.', 'error');
+            .then(r => r.json())
+            .then(res => {
+                loader(false);
+                if(res.status === 'success') {
+                    renderQuiz(res.data);
+                    document.getElementById('page-login').classList.add('hidden');
+                    document.getElementById('page-quiz').classList.remove('hidden');
+                    document.getElementById('nama_pelajar').innerText = userData.nama;
+                    startTimer(userData.durasi || 30);
                 }
-            })
-            .catch(err => {
-                showLoader(false);
-                Swal.fire('Ralat', 'Gagal memuat turun soalan.', 'error');
             });
         }
 
-        function renderQuiz(questions) {
-            const container = document.getElementById('quiz-container');
-            container.innerHTML = '';
-
-            questions.forEach((q, index) => {
-                let optionsHTML = '';
-                // Jika soalan objektif (A, B, C, D)
-                if (q.options) {
-                    for (const [key, val] of Object.entries(q.options)) {
-                        if (val) { // Hanya paparkan jika ada isi
-                            optionsHTML += `
-                                <label class="flex items-start p-3 border rounded-lg cursor-pointer hover:bg-blue-50 transition mb-2">
-                                    <input type="radio" name="q_${q.id}" value="${key}" class="mt-1 mr-3" onchange="saveAnswer('${q.id}', '${key}')">
-                                    <span class="text-sm"><span class="font-bold mr-2">${key}.</span> ${val}</span>
-                                </label>
-                            `;
-                        }
-                    }
-                }
-
-                const html = `
-                    <div class="bg-white p-5 rounded-lg shadow">
-                        <p class="font-bold text-gray-800 mb-4"><span class="text-blue-600 mr-2">Soalan ${index + 1}:</span> ${q.soalan}</p>
-                        <div class="space-y-2">
-                            ${optionsHTML}
-                        </div>
+        function renderQuiz(soalanList) {
+            const container = document.getElementById('soalan-container');
+            container.innerHTML = soalanList.map((q, idx) => `
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <p class="font-bold text-gray-800 mb-4 text-lg"><span class="text-green-600 mr-2">Q${idx+1}.</span> ${q.soalan}</p>
+                    <div class="space-y-3">
+                        ${Object.entries(q.options).map(([k, v]) => v ? `
+                            <label class="flex items-center p-3 border rounded-lg hover:bg-green-50 cursor-pointer transition">
+                                <input type="radio" name="q-${q.id}" value="${k}" class="w-5 h-5 text-green-600 focus:ring-green-500" onchange="jawapan['${q.id}']='${k}'">
+                                <span class="ml-3 font-medium text-gray-700"><span class="font-bold text-gray-900 mr-1">${k}.</span> ${v}</span>
+                            </label>
+                        ` : '').join('')}
                     </div>
-                `;
-                container.innerHTML += html;
-            });
+                </div>
+            `).join('');
         }
 
-        function saveAnswer(qid, ans) {
-            answers[qid] = ans;
-        }
-
-        function startTimer(minutes) {
-            let time = minutes * 60;
+        function startTimer(min) {
+            let time = min * 60;
             const el = document.getElementById('timer');
-            
             timerInterval = setInterval(() => {
                 const m = Math.floor(time / 60);
                 const s = time % 60;
-                el.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-                
-                if (time <= 0) {
+                el.innerText = `${m}:${s<10?'0':''}${s}`;
+                if(time <= 0) {
                     clearInterval(timerInterval);
-                    Swal.fire({
-                        title: 'Masa Tamat!',
-                        text: 'Jawapan anda akan dihantar secara automatik.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => submitQuiz(true));
+                    Swal.fire({ title: 'Masa Tamat', text: 'Jawapan dihantar automatik', icon: 'info', timer: 2000, showConfirmButton: false }).then(() => submitData());
                 }
                 time--;
             }, 1000);
         }
 
-        function submitQuiz(force = false) {
-            if (!force) {
-                // Pengesahan sebelum hantar
-                Swal.fire({
-                    title: 'Hantar Jawapan?',
-                    text: "Pastikan anda telah menyemak semua jawapan.",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Hantar!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        processSubmission();
-                    }
-                });
-            } else {
-                processSubmission();
-            }
+        function confirmSubmit() {
+            Swal.fire({
+                title: 'Hantar Jawapan?',
+                text: "Anda tidak boleh mengubah jawapan selepas ini.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Hantar!'
+            }).then((result) => {
+                if (result.isConfirmed) submitData();
+            });
         }
 
-        function processSubmission() {
+        function submitData() {
             clearInterval(timerInterval);
-            showLoader(true);
-
-            const payload = {
-                action: 'submit',
-                no_kp: currentUser.no_kp || document.getElementById('no_kp').value, // Fallback jika refresh
-                nama: currentUser.nama,
-                answers: answers
-            };
-
+            loader(true);
             fetch(API_URL, {
                 method: 'POST',
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    action: 'submit',
+                    no_kp: userData.no_kp || document.getElementById('ic_input').value, // Fallback
+                    nama: userData.nama,
+                    answers: jawapan
+                })
             })
-            .then(res => res.json())
-            .then(data => {
-                showLoader(false);
-                Swal.fire({
-                    title: 'Berjaya!',
-                    text: 'Jawapan anda telah direkodkan.',
-                    icon: 'success',
-                    allowOutsideClick: false
-                }).then(() => {
-                    location.reload(); 
-                });
+            .then(r => r.json())
+            .then(res => {
+                loader(false);
+                if(res.status === 'success') {
+                    Swal.fire('Tahniah!', `Jawapan diterima. Markah: ${res.score}/${res.total}`, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Ralat', 'Gagal menyimpan rekod.', 'error');
+                }
             })
-            .catch(err => {
-                showLoader(false);
-                Swal.fire('Ralat', 'Gagal menyimpan jawapan. Sila cuba lagi.', 'error');
-            });
+            .catch(() => { loader(false); Swal.fire('Ralat', 'Ralat sambungan.', 'error'); });
         }
     </script>
 </body>
